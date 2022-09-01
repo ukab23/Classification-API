@@ -1,8 +1,10 @@
 from flask import Flask, request, jsonify
-from sklearn.externals import joblib
+import joblib
 import traceback
 import pandas as pd
 import numpy as np
+import os
+from test_ML import CreateModel
 
 # Your API definition
 app = Flask(__name__)
@@ -32,14 +34,24 @@ if __name__ == '__main__':
     try:
         port = int(sys.argv[1]) # This is for a command-line input
     except:
-        port = 12345 # If you don't provide any port the port will be set to 12345
+        port = 8080 # If you don't provide any port the port will be set to 12345
+ 
+    path ='models' 
+    directory= os.listdir(path) 
+    if len(directory) == 0: 
+        create = CreateModel()
+        create.train()
+        lr = joblib.load("models/lr_model.pkl") # Load "model.pkl"
+        svc = joblib.load("models/svc_model.pkl")
+        nb = joblib.load("models/nb_model.pkl")
 
-    lr = joblib.load("lr_model.pkl") # Load "model.pkl"
-    svc = joblib.load("svc_model.pkl")
-    nb = joblib.load("nb_model.pkl")
+    else: 
+        lr = joblib.load("models/lr_model.pkl") # Load "model.pkl"
+        svc = joblib.load("models/svc_model.pkl")
+        nb = joblib.load("models/nb_model.pkl")
 
-    print ('Model loaded')
-    model_columns = joblib.load("model_columns.pkl") # Load "model_columns.pkl"
+    print('Model loaded')
+    model_columns = joblib.load("models/model_columns.pkl") # Load "model_columns.pkl"
     print ('Model columns loaded')
 
-    app.run(port=port, debug=True)
+    app.run(host="0.0.0.0", port=port, debug=True)
